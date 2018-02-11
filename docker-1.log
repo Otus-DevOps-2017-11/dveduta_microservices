@@ -1,0 +1,15 @@
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
+dveduta/ubuntu-tmp-file   latest              6dbea8749760        19 seconds ago      112MB
+ubuntu                    16.04               0458a4468cbc        2 weeks ago         112MB
+nginx                     latest              3f8a4339aadd        6 weeks ago         108MB
+hello-world               latest              f2a91732366c        2 months ago        1.85kB
+
+
+docker inspect 7b908860fe3a > container-inspect.txt
+docker inspect 6dbea8749760 > image-inspect.txt
+
+Логично, что вывод команд отличается: разные сущности. 
+container - это инстанс образа, и в его inspect содержится информация необходимая для 
+управления контейнером (и дебага) и минимальная информация об исходном образе.
+В image-inspect содержится минимально-необходимая информация о контейнере
+из которого получился образ, но описываются слои, из которых образ состоит.
