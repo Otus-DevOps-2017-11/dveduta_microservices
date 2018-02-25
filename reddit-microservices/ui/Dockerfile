@@ -1,4 +1,4 @@
-FROM ruby:2.2
+FROM ubuntu:16.04
 
 ENV COMMENT_SERVICE_HOST comment
 ENV COMMENT_SERVICE_PORT 9292
@@ -11,7 +11,8 @@ COPY . $APP_HOME
 WORKDIR $APP_HOME
 
 RUN apt-get update -qq \
- && apt-get install -y --no-install-recommends build-essential \
+ && apt-get install -y --no-install-recommends ruby-full build-essential \
+ && gem install bundler --no-ri --no-rdoc \
  && bundle install \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
