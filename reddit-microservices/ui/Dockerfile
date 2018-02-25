@@ -16,4 +16,4 @@ RUN apt-get update -qq \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-CMD ["puma"]<Paste>
+CMD ["puma"]
