@@ -25,7 +25,6 @@ hello-world         latest              f2a91732366c        2 months ago        
  * Зашли в контейнер с `/tmp/file` с помощью `docker exec -it 7b908860fe3a bash`
  * Закомитили контейнер в образ `docker commit 7b908860fe3a dveduta/ubuntu-tmp-file`
  * Записали вывод списка образов в файл `docker images > docker-1.log`
- * Задание со звездочкой (но под вопросом, не совсем понятно что именно требуется)
  * Выключение запущенных контейнеров
  ```
 $ docker ps -q
