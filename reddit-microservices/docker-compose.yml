@@ -5,27 +5,38 @@ services:
     volumes:
       - post_db:/data/db
     networks:
-      - reddit
+      - back_net
   ui:
     build: ./ui
-    image: ${USERNAME}/ui:1.0
+    image: ${USERNAME}/ui:${UIVERSION}
     ports:
-      - 9292:9292/tcp
+      - ${UIPORT}:9292/tcp
     networks:
-      - reddit
+      - front_net
   post:
     build: ./post-py
-    image: ${USERNAME}/post:1.0
+    image: ${USERNAME}/post:${POSTVERSION}
     networks:
-      - reddit
+      - back_net
+      - front_net
   comment:
     build: ./comment
-    image: ${USERNAME}/comment:1.0
+    image: ${USERNAME}/comment:${COMMENTVERSION}
     networks:
-      - reddit
+      - back_net
+      - front_net
 
 volumes:
   post_db:
 
 networks:
-  reddit:
+  back_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.2.0/24
+  front_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.1.0/24

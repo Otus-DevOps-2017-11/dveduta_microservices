@@ -179,12 +179,10 @@ docker network connect front_net comment
 ---
 * Docker-compose установлен
 * Используя предоставленный docker-compose.yml запустили проект
+
 ```
 export USERNAME=denveduta
 docker-compose up -d
-docker-compose ps
-```
-```
 docker-compose ps
             Name                          Command             State           Ports
 --------------------------------------------------------------------------------------------
@@ -194,3 +192,24 @@ redditmicroservices_post_db_1   docker-entrypoint.sh mongod   Up      27017/tcp
 redditmicroservices_ui_1        puma                          Up      0.0.0.0:9292->9292/tcp
 ```
 * проверили - проект жив и работает.
+
+### Самостоятельное задание
+
+* Изменили docker-compose под вариант с несколькими сетями 
+```
+networks:
+  back_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.2.0/24
+  front_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.1.0/24
+```
+* Параметризовали порт публикации UI (и проверили создав правило файерволла для этого порта), версии сервисов.
+* Вынесли параметры в дефолтный файл переменных окружения .env (иначе пришлось бы указывать его каждый раз вручную)
+* Сделали .env.example , вынесли .env в исключения
+* Проверили что переменные подгружаются из файла автоматически
