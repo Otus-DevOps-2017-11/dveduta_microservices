@@ -118,3 +118,98 @@ denveduta/ui            1.0                 f4125122301d        45 minutes ago  
 * Перезапустили с подключением тома, добавили пост
 * Перезапустили еще раз - пост на месте
 * Оптимизировали сборку контейнеров
+
+## Домашняя работа 17
+
+* Запустили joffotron/docker-net-tools с `--network none` - доступен только localhost
+* Запустили joffotron/docker-net-tools с `--network host` - доступные интерфейсы контейнера полностью совпадают с хостом, где контейнер запущен
+* Запустили 4 раза `docker run --network host -d nginx` - ошибок при последовательном запуске выдано не было, однако работает только первый контейнер. Остальные контейнеры не смогли запуститься из-за конфликта за занятие порта 80
+```
+[dveduta_microservices (docker-4)]$ docker logs  43fe2e53b026
+...
+2018/03/31 10:36:27 [emerg] 1#1: bind() to 0.0.0.0:80 failed (98: Address already in use)
+```
+* Остановили и зачистили контейнеры
+---
+* задание со звездочкой пропущено
+---
+* Создали bridge-сеть в docker
+```
+docker network create reddit --driver bridge
+```
+* Запустили наш проект reddit с использованием bridge-сети
+```
+docker run -d --network=reddit mongo:latest
+docker run -d --network=reddit denveduta/post:1.0
+docker run -d --network=reddit denveduta/comment:1.0 
+docker run -d --network=reddit -p 9292:9292 denveduta/ui:1.0
+```
+* Контейнеры не "видят" друг друга, их имена не прописаны
+* Пересоздаем с прописанными именами
+```
+docker kill $(docker ps -q)
+docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db mongo:latest
+docker run -d --network=reddit --network-alias=post denveduta/post:1.0
+docker run -d --network=reddit --network-alias=comment denveduta/comment:1.0 
+docker run -d --network=reddit -p 9292:9292 denveduta/ui:1.0
+```
+* Проект жив и работает.
+* Пересоздаем контейнеры так, чтобы ui не имел доступа к базе.
+* Останавливаем старые контейнеры, создаем раздельные сети
+```
+docker kill $(docker ps -q)
+docker network create back_net --subnet=10.0.2.0/24
+docker network create front_net --subnet=10.0.1.0/24
+```
+* Запускаем контейнеры в соответствующих сетях
+```
+docker run -d --network=front_net -p 9292:9292 --name ui  denveduta/ui:1.0
+docker run -d --network=back_net --name comment  denveduta/comment:1.0
+docker run -d --network=back_net --name post  denveduta/post:1.0
+docker run -d --network=back_net --name mongo_db --network-alias=post_db --network-alias=comment_db mongo:latest
+```
+* Провал - при старте можно подключить только одну сеть. До-подключаем `post` и `comment` в сеть `front_net`
+```
+docker network connect front_net post
+docker network connect front_net comment
+```
+* Успех
+---
+* задание со звездочкой пропущено
+---
+* Docker-compose установлен
+* Используя предоставленный docker-compose.yml запустили проект
+
+```
+export USERNAME=denveduta
+docker-compose up -d
+docker-compose ps
+            Name                          Command             State           Ports
+--------------------------------------------------------------------------------------------
+redditmicroservices_comment_1   puma                          Up
+redditmicroservices_post_1      python3 post_app.py           Up
+redditmicroservices_post_db_1   docker-entrypoint.sh mongod   Up      27017/tcp
+redditmicroservices_ui_1        puma                          Up      0.0.0.0:9292->9292/tcp
+```
+* проверили - проект жив и работает.
+
+### Самостоятельное задание
+
+* Изменили docker-compose под вариант с несколькими сетями 
+```
+networks:
+  back_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.2.0/24
+  front_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.1.0/24
+```
+* Параметризовали порт публикации UI (и проверили создав правило файерволла для этого порта), версии сервисов.
+* Вынесли параметры в дефолтный файл переменных окружения .env (иначе пришлось бы указывать его каждый раз вручную)
+* Сделали .env.example , вынесли .env в исключения
+* Проверили что переменные подгружаются из файла автоматически

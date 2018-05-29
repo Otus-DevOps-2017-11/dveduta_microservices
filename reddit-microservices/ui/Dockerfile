@@ -11,8 +11,8 @@ ENV POST_SERVICE_PORT 5000
 RUN apt-get update -qq \
  && apt-get install -y --no-install-recommends ruby-full build-essential \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
- && gem install bundler --no-ri --no-rdoc \
+ && rm -rf /var/lib/apt/lists/* \
+ && gem install bundler --no-ri --no-rdoc
 
 COPY . $APP_HOME
 
